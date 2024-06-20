@@ -2,6 +2,7 @@ name: cicd
 
 on: 
   workflow_dispatch:
+  pull_request:
   push:
     branches:
       - main
@@ -35,4 +36,4 @@ jobs:
       - uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
           entrypoint: '/kubeconform'
-          args: "-summary -output json kubeconfigs/"
+          args: "-summary -output json ./charts/docker-buildkit/ -kubernetes-version 1.29.1"
