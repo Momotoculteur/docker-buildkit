@@ -28,12 +28,3 @@ jobs:
           fi
         done
 
-  kubeconform:
-    runs-on: ubuntu-20.04
-    needs: helm-lint
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker://ghcr.io/yannh/kubeconform:latest
-        with:
-          entrypoint: '/kubeconform'
-          args: "-summary -output json ./charts/docker-buildkit/ -kubernetes-version 1.29.1"

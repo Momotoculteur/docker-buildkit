@@ -8,3 +8,4 @@ Feel free de pr :)
     - ajout mode deploy/job/statefulset
     - ajout mode non rootless
 - cicd: tag auto avec gitversion ?
+- cicd: ajout kubeconform
