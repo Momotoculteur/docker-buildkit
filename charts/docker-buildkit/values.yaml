@@ -17,6 +17,8 @@ resources:
     cpu: '4'
     memory: '256Mi'
 
+rootless: 
+  enabled: true
 
 autoscaling:  
   # -- enable HPA

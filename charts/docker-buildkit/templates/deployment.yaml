@@ -35,6 +35,14 @@ spec:
             - --addr
             - tcp://0.0.0.0:1234
             - --oci-worker-no-process-sandbox
+          {{- if not .Values.rootless.enabled }}
+            - --tlscacert
+            - /certs/ca.pem
+            - --tlscert
+            - /certs/cert.pem
+            - --tlskey
+            - /certs/key.pem
+          {{- end }}
           # the probe below will only work after Release v0.6.3
           readinessProbe:
             exec:
@@ -69,6 +77,17 @@ spec:
             # https://github.com/moby/buildkit/issues/879#issuecomment-1240347038
             - mountPath: /home/user/.local/share/buildkit
               name: buildkitd
+          {{- if not .Values.rootless.enabled }}
+            - name: certs
+              readOnly: true
+              mountPath: /certs
+          {{- end }}
       volumes:
         - name: buildkitd
           emptyDir: {}
+      {{- if not .Values.rootless.enabled }}
+        # buildkit-daemon-certs must contain ca.pem, cert.pem, and key.pem
+        - name: certs
+          secret:
+            secretName: buildkit-daemon-certs
+      {{- end }}
