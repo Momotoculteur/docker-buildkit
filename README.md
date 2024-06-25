@@ -9,3 +9,5 @@ Feel free de pr :)
     - ajout mode non rootless
 - cicd: tag auto avec gitversion ?
 - cicd: ajout kubeconform
+
+
