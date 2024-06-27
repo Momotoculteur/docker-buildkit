@@ -29,7 +29,7 @@ spec:
       initContainers:
       {{- if .Values.Bottlerocket.enabled }}
         - name: sysctl-userns
-          image: "{{ .Values.Bottlerocket.image.repository }}{{ .Values.Bottlerocket.image.image }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}:{{ .Values.image.tag }}"
+          image: "{{ .Values.Bottlerocket.image.repository }}{{ .Values.Bottlerocket.image.image }}:{{ .Values.Bottlerocket.image.tag }}"
           command: ["sh", "-euxc", "sysctl -w user.max_user_namespaces=63359"]
           securityContext:
             privileged: true
