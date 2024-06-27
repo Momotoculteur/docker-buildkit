@@ -36,7 +36,7 @@ spec:
       {{- end }}
       containers:
         - name: buildkitd
-          image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}/{{ .Values.image.image }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           args:
