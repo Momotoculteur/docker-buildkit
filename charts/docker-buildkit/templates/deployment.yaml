@@ -24,6 +24,12 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: sysctl-userns
+          image: busybox
+          command: ["sh", "-euxc", "sysctl -w user.max_user_namespaces=63359"]
+          securityContext:
+            privileged: true
       containers:
         - name: buildkitd
           image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
