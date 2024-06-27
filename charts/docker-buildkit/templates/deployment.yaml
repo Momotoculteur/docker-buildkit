@@ -35,7 +35,7 @@ spec:
             - --addr
             - tcp://0.0.0.0:1234
             - --oci-worker-no-process-sandbox
-          {{- if not .Values.tls.enabled }}
+          {{- if .Values.tls.enabled }}
             - --tlscacert
             - /certs/ca.pem
             - --tlscert
@@ -79,7 +79,7 @@ spec:
             # https://github.com/moby/buildkit/issues/879#issuecomment-1240347038
             - mountPath: /home/user/.local/share/buildkit
               name: buildkitd
-          {{- if not .Values.tls.enabled }}
+          {{- if .Values.tls.enabled }}
             - name: certs
               readOnly: true
               mountPath: /certs
@@ -87,7 +87,7 @@ spec:
       volumes:
         - name: buildkitd
           emptyDir: {}
-      {{- if not .Values.tls.enabled }}
+      {{- if .Values.tls.enabled }}
         # buildkit-daemon-certs must contain ca.pem, cert.pem, and key.pem
         - name: certs
           secret:
