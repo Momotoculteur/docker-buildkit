@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: "buildkitd"
+  repository: ""
   image: "moby/buildkit"
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v0.14.1"
@@ -28,14 +28,12 @@ Bottlerocket:
   # be setted on your node/vm
   enabled: true
   image:
-    repository: 
+    repository: ""
     image: "alpine"
     tag: "3.20.1"
 
 customOptions:
   runOnEks: true
-  runOnBottlerocketOS:
-
 
 autoscaling:  
   # -- enable HPA
