@@ -20,6 +20,9 @@ resources:
 rootless: 
   enabled: true
 
+tls: 
+  enabled: false
+
 autoscaling:  
   # -- enable HPA
   enabled: true

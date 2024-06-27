@@ -31,11 +31,11 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           args:
             - --addr
-            - unix:///run/user/1000/buildkit/buildkitd.sock
+            - unix:///run/{{ .Values.rootless.enabled | ternary "user/1000" ""}}/buildkit/buildkitd.sock
             - --addr
             - tcp://0.0.0.0:1234
             - --oci-worker-no-process-sandbox
-          {{- if not .Values.rootless.enabled }}
+          {{- if not .Values.tls.enabled }}
             - --tlscacert
             - /certs/ca.pem
             - --tlscert
@@ -62,12 +62,14 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 30
           securityContext:
-            # Needs Kubernetes >= 1.19
-            seccompProfile:
+          {{- if .Values.rootless.enabled }}
+            seccompProfile: # Needs Kubernetes >= 1.19
               type: Unconfined
-            # To change UID/GID, you need to rebuild the image
             runAsUser: 1000
             runAsGroup: 1000
+          {{- else }}
+            privileged: true
+          {{- end }}
           ports:
             - containerPort: 1234
           volumeMounts:
@@ -77,7 +79,7 @@ spec:
             # https://github.com/moby/buildkit/issues/879#issuecomment-1240347038
             - mountPath: /home/user/.local/share/buildkit
               name: buildkitd
-          {{- if not .Values.rootless.enabled }}
+          {{- if not .Values.tls.enabled }}
             - name: certs
               readOnly: true
               mountPath: /certs
@@ -85,7 +87,7 @@ spec:
       volumes:
         - name: buildkitd
           emptyDir: {}
-      {{- if not .Values.rootless.enabled }}
+      {{- if not .Values.tls.enabled }}
         # buildkit-daemon-certs must contain ca.pem, cert.pem, and key.pem
         - name: certs
           secret:
