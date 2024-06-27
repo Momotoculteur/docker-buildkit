@@ -16,8 +16,10 @@ spec:
       labels:
         app: buildkitd
       annotations:
+      {{- if .Values.customOptions.runOnEks }}
         container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
         container.seccomp.security.alpha.kubernetes.io/buildkitd: unconfined
+      {{- end }}
     # see buildkit/docs/rootless.md for caveats of rootless mode
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -25,11 +27,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+      {{- if .Values.Bottlerocket.enabled }}
         - name: sysctl-userns
-          image: busybox
+          image: "{{ .Values.Bottlerocket.image.repository }}{{ .Values.Bottlerocket.image.image }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}:{{ .Values.image.tag }}"
           command: ["sh", "-euxc", "sysctl -w user.max_user_namespaces=63359"]
           securityContext:
             privileged: true
+      {{- end }}
       containers:
         - name: buildkitd
           image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

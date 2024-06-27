@@ -5,7 +5,7 @@ image:
   repository: "buildkitd"
   image: "moby/buildkit"
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.14.1-rootless"
+  tag: "v0.14.1"
 
 imagePullSecrets: []
 
@@ -22,6 +22,20 @@ rootless:
 
 tls: 
   enabled: false
+
+Bottlerocket: 
+  # if you use bottlerocket base image for yours EKS/AKS, you need specific additionals options which need to
+  # be setted on your node/vm
+  enabled: true
+  image:
+    repository: 
+    image: "alpine"
+    tag: "3.20.1"
+
+customOptions:
+  runOnEks: true
+  runOnBottlerocketOS:
+
 
 autoscaling:  
   # -- enable HPA
