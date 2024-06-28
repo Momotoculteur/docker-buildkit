@@ -9,6 +9,8 @@ image:
 
 imagePullSecrets: []
 
+nodeSelector: {}
+
 resources:
   requests:
     cpu: '1'

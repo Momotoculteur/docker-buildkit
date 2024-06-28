@@ -34,6 +34,10 @@ spec:
           securityContext:
             privileged: true
       {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: buildkitd
           image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}"
