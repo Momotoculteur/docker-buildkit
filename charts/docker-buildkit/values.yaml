@@ -14,6 +14,12 @@ nodeSelector: {}
 tolerations: {}
 
 resources: {}
+  requests:
+    cpu: '1'
+    memory: '128Mi'
+  limits:
+    cpu: '4'
+    memory: '256Mi'
 
 rootless: 
   enabled: true
