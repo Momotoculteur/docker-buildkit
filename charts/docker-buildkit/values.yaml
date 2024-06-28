@@ -11,6 +11,8 @@ imagePullSecrets: []
 
 nodeSelector: {}
 
+tolerations: {}
+
 resources:
   requests:
     cpu: '1'

@@ -38,6 +38,10 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: buildkitd
           image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}"
