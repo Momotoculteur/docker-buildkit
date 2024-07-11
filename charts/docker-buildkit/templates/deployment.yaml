@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: buildkitd
+  name: buildkitd
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: buildkitd
+  template:
+    metadata:
+      labels:
+        app: buildkitd
+      annotations:
+      {{- if .Values.customOptions.runOnEks }}
+        container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
+        container.seccomp.security.alpha.kubernetes.io/buildkitd: unconfined
+      {{- end }}
+    # see buildkit/docs/rootless.md for caveats of rootless mode
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.Bottlerocket.enabled }}
+        - name: sysctl-userns
+          image: "{{ .Values.Bottlerocket.image.repository }}{{ .Values.Bottlerocket.image.image }}:{{ .Values.Bottlerocket.image.tag }}"
+          command: ["sh", "-euxc", "sysctl -w user.max_user_namespaces=63359"]
+          securityContext:
+            privileged: true
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: buildkitd
+          image: "{{ .Values.image.repository }}/{{ .Values.image.image }}:{{ .Values.image.tag }}{{ .Values.rootless.enabled | ternary "-rootless" ""}}"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          args:
+            - --addr
+            - unix:///run/{{ .Values.rootless.enabled | ternary "user/1000" ""}}/buildkit/buildkitd.sock
+            - --addr
+            - tcp://0.0.0.0:1234
+            - --oci-worker-no-process-sandbox
+          {{- if .Values.tls.enabled }}
+            - --tlscacert
+            - /certs/ca.pem
+            - --tlscert
+            - /certs/cert.pem
+            - --tlskey
+            - /certs/key.pem
+          {{- end }}
+          # the probe below will only work after Release v0.6.3
+          readinessProbe:
+            exec:
+              command:
+                - buildctl
+                - debug
+                - workers
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          # the probe below will only work after Release v0.6.3
+          livenessProbe:
+            exec:
+              command:
+                - buildctl
+                - debug
+                - workers
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          securityContext:
+          {{- if .Values.rootless.enabled }}
+            seccompProfile: # Needs Kubernetes >= 1.19
+              type: Unconfined
+            runAsUser: 1000
+            runAsGroup: 1000
+          {{- else }}
+            privileged: true
+          {{- end }}
+          ports:
+            - containerPort: 1234
+          volumeMounts:
+            # Dockerfile has `VOLUME /home/user/.local/share/buildkit` by default too,
+            # but the default VOLUME does not work with rootless on Google's Container-Optimized OS
+            # as it is mounted with `nosuid,nodev`.
+            # https://github.com/moby/buildkit/issues/879#issuecomment-1240347038
+            - mountPath: /home/user/.local/share/buildkit
+              name: buildkitd
+          {{- if .Values.tls.enabled }}
+            - name: certs
+              readOnly: true
+              mountPath: /certs
+          {{- end }}
+      volumes:
+        - name: buildkitd
+          emptyDir: {}
+      {{- if .Values.tls.enabled }}
+        # buildkit-daemon-certs must contain ca.pem, cert.pem, and key.pem
+        - name: certs
+          secret:
+            secretName: buildkit-daemon-certs
+      {{- end }}

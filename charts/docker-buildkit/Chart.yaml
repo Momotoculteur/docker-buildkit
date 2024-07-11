@@ -1,0 +1,14 @@
+apiVersion: v2
+name: docker-buildkit
+description: Deploy a Docker Buildkit Daemon
+
+type: application
+
+version: 0.1.0
+appVersion: "v0.14.1"
+home: https://github.com/docker/buildx
+sources: 
+- https://github.com/docker/buildx
+maintainers:
+  - name: Momotoculteur
+    email: bastien_maurice@hotmail.com
