@@ -32,7 +32,7 @@ Deploy a Docker Buildkit Daemon
 | customOptions.runOnEks | bool | `true` |  |
 | image.image | string | `"moby/buildkit"` |  |
 | image.repository | string | `""` |  |
-| image.tag | string | `"v0.14.1"` |  |
+| image.tag | string | `"v0.16.0"` |  |
 | imagePullSecrets | list | `[]` |  |
 | nodeSelector | object | `{}` |  |
 | replicaCount | int | `1` | Number of replicas if HPA is not enabled |
